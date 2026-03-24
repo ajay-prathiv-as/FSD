@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Student Records</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Poppins', sans-serif;
+    background: #f0faf6;
+    color: #1a1a1a;
+    font-size: 14px;
+  }
+
+  /* ── Header ── */
+  .header {
+    background: #fff;
+    border-bottom: 2px solid #2db891;
+    padding: 16px 24px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  .header h1 {
+    font-size: 18px;
+    font-weight: 600;
+    color: #2db891;
+  }
+
+  .header p {
+    font-size: 12px;
+    color: #888;
+    margin-top: 2px;
+  }
+
+  .total-pill {
+    background: #e6f7f2;
+    color: #2db891;
+    border: 1px solid #2db891;
+    border-radius: 20px;
+    padding: 4px 14px;
+    font-size: 12px;
+    font-weight: 500;
+  }
+
+  /* ── Dept cards ── */
+  .dept-row {
+    display: flex;
+    gap: 10px;
+    padding: 16px 24px;
+    overflow-x: auto;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  .dept-card {
+    min-width: 110px;
+    background: #f0faf6;
+    border: 1px solid #b2e4d4;
+    border-radius: 8px;
+    padding: 10px 14px;
+    cursor: pointer;
+    transition: 0.2s;
+    text-align: center;
+  }
+
+  .dept-card:hover, .dept-card.active {
+    background: #2db891;
+    border-color: #2db891;
+    color: #fff;
+  }
+
+  .dept-card .d-name { font-size: 11px; font-weight: 500; }
+  .dept-card .d-count { font-size: 20px; font-weight: 600; margin-top: 2px; }
+
+  /* ── Controls ── */
+  .controls {
+    display: flex;
+    gap: 10px;
+    padding: 14px 24px;
+    align-items: center;
+    flex-wrap: wrap;
+    background: #fff;
+    border-bottom: 1px solid #e0e0e0;
+  }
+
+  input[type="text"], select {
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    padding: 7px 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 13px;
+    outline: none;
+    transition: border-color 0.2s;
+    background: #fff;
+  }
+
+  input[type="text"] { flex: 1; min-width: 180px; }
+  input[type="text"]:focus, select:focus { border-color: #2db891; }
+
+  select option { background: #fff; }
+
+  .sort-label {
+    font-size: 12px;
+    color: #888;
+    white-space: nowrap;
+  }
+
+  .sort-btn {
+    background: #f0faf6;
+    border: 1px solid #b2e4d4;
+    border-radius: 6px;
+    padding: 6px 12px;
+    font-family: 'Poppins', sans-serif;
+    font-size: 12px;
+    cursor: pointer;
+    transition: 0.2s;
+    color: #2db891;
+  }
+
+  .sort-btn:hover, .sort-btn.active {
+    background: #2db891;
+    color: #fff;
+    border-color: #2db891;
+  }
+
+  /* ── Tip box ── */
+  .tip-box {
+    margin: 14px 24px 0;
+    background: #fff;
+    border-left: 3px solid #2db891;
+    border-radius: 6px;
+    padding: 10px 14px;
+    font-size: 12px;
+    color: #555;
+    line-height: 1.7;
+  }
+
+  .tip-box strong { color: #2db891; }
+
+  /* ── Table ── */
+  .table-wrap {
+    padding: 14px 24px 24px;
+    overflow-x: auto;
+  }
+
+  .record-count {
+    font-size: 12px;
+    color: #888;
+    margin-bottom: 10px;
+  }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    background: #fff;
+    border-radius: 8px;
+    overflow: hidden;
+    box-shadow: 0 1px 4px rgba(0,0,0,0.07);
+  }
+
+  thead { background: #2db891; color: #fff; }
+
+  th {
+    padding: 10px 14px;
+    text-align: left;
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 0.03em;
+  }
+
+  tbody tr {
+    border-bottom: 1px solid #f0f0f0;
+    transition: background 0.15s;
+  }
+
+  tbody tr:hover { background: #f0faf6; }
+  tbody tr:last-child { border-bottom: none; }
+
+  td { padding: 10px 14px; vertical-align: middle; }
+
+  .avatar {
+    width: 30px; height: 30px;
+    border-radius: 50%;
+    background: #2db891;
+    color: #fff;
+    font-size: 11px;
+    font-weight: 600;
+    display: flex; align-items: center; justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .name-cell { display: flex; align-items: center; gap: 10px; }
+  .name-txt { font-weight: 500; font-size: 13px; }
+  .id-txt { font-size: 11px; color: #aaa; }
+
+  .badge {
+    padding: 3px 10px;
+    border-radius: 20px;
+    font-size: 11px;
+    font-weight: 500;
+    background: #e6f7f2;
+    color: #2db891;
+    border: 1px solid #b2e4d4;
+  }
+
+  .gpa-hi { color: #2db891; font-weight: 600; }
+  .gpa-md { color: #f5a623; font-weight: 600; }
+  .gpa-lo { color: #e05555; font-weight: 600; }
+
+  .status { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .dot { width: 7px; height: 7px; border-radius: 50%; }
+
+  .no-results {
+    text-align: center;
+    padding: 40px;
+    color: #aaa;
+    font-size: 13px;
+  }
+</style>
+</head>
+<body>
+
+<div class="header">
+  <div>
+    <h1>📋 Student Records</h1>
+    <p>Sort, filter, and explore student data</p>
+  </div>
+  <div class="total-pill" id="totalPill">30 Students</div>
+</div>
+
+<div class="dept-row" id="deptRow"></div>
+
+<div class="controls">
+  <input type="text" id="searchInput" placeholder="🔍  Search by name or ID…">
+  <select id="deptFilter">
+    <option value="">All Departments</option>
+    <option value="CS">Computer Science</option>
+    <option value="EE">Electrical Eng.</option>
+    <option value="ME">Mechanical Eng.</option>
+    <option value="BBA">Business Admin.</option>
+    <option value="BIO">Biology</option>
+    <option value="MATH">Mathematics</option>
+  </select>
+  <span class="sort-label">Sort by:</span>
+  <button class="sort-btn active" id="btnName" onclick="setSort('name')">Name ↕</button>
+  <button class="sort-btn" id="btnDate" onclick="setSort('date')">Enroll Date ↕</button>
+  <button class="sort-btn" id="btnGpa"  onclick="setSort('gpa')">GPA ↕</button>
+</div>
+
+<div class="tip-box">
+  💡 <strong>How to use:</strong>
+  Click a <strong>department card</strong> to filter · Use the <strong>search box</strong> to find a student · Click <strong>Sort by</strong> buttons to reorder · Click again to reverse the order
+</div>
+
+<div class="table-wrap">
+  <div class="record-count" id="countInfo"></div>
+  <table>
+    <thead>
+      <tr>
+        <th>Student</th>
+        <th>Department</th>
+        <th>Enroll Date</th>
+        <th>GPA</th>
+        <th>Status</th>
+      </tr>
+    </thead>
+    <tbody id="tableBody"></tbody>
+  </table>
+  <div class="no-results" id="noResults" style="display:none">
+    😕 No students found. Try a different search or filter.
+  </div>
+</div>
+
+<script>
+const STUDENTS = [
+  { id:"S001", name:"Aanya Sharma",      dept:"CS",   date:"2022-07-15", gpa:3.9, status:"Active" },
+  { id:"S002", name:"Rahul Verma",       dept:"EE",   date:"2021-08-10", gpa:3.5, status:"Active" },
+  { id:"S003", name:"Priya Nair",        dept:"ME",   date:"2023-01-20", gpa:3.2, status:"Active" },
+  { id:"S004", name:"Karthik Rajan",     dept:"BBA",  date:"2020-06-05", gpa:3.7, status:"Graduated" },
+  { id:"S005", name:"Meera Pillai",      dept:"BIO",  date:"2022-09-01", gpa:3.6, status:"Active" },
+  { id:"S006", name:"Arjun Das",         dept:"MATH", date:"2021-07-22", gpa:3.8, status:"Active" },
+  { id:"S007", name:"Divya Krishnan",    dept:"CS",   date:"2023-07-10", gpa:3.4, status:"Active" },
+  { id:"S008", name:"Rohit Menon",       dept:"EE",   date:"2020-08-18", gpa:2.9, status:"Probation" },
+  { id:"S009", name:"Sneha Iyer",        dept:"ME",   date:"2022-01-15", gpa:3.1, status:"Active" },
+  { id:"S010", name:"Vikram Rao",        dept:"BBA",  date:"2021-06-25", gpa:3.3, status:"Active" },
+  { id:"S011", name:"Ananya Bose",       dept:"BIO",  date:"2023-09-05", gpa:3.7, status:"Active" },
+  { id:"S012", name:"Siddharth Gupta",   dept:"MATH", date:"2020-07-30", gpa:4.0, status:"Active" },
+  { id:"S013", name:"Lakshmi Suresh",    dept:"CS",   date:"2022-08-08", gpa:3.5, status:"Active" },
+  { id:"S014", name:"Nikhil Patil",      dept:"EE",   date:"2021-01-12", gpa:3.0, status:"Active" },
+  { id:"S015", name:"Kavitha Reddy",     dept:"ME",   date:"2023-07-25", gpa:3.6, status:"Active" },
+  { id:"S016", name:"Aditya Kumar",      dept:"BBA",  date:"2020-09-14", gpa:2.8, status:"Probation" },
+  { id:"S017", name:"Pooja Mehta",       dept:"BIO",  date:"2022-07-20", gpa:3.9, status:"Active" },
+  { id:"S018", name:"Rajesh Nambiar",    dept:"MATH", date:"2021-08-02", gpa:3.4, status:"Active" },
+  { id:"S019", name:"Deepa Chandran",    dept:"CS",   date:"2023-01-08", gpa:3.8, status:"Active" },
+  { id:"S020", name:"Suresh Pillai",     dept:"EE",   date:"2020-06-18", gpa:3.6, status:"Graduated" },
+  { id:"S021", name:"Anjali Singh",      dept:"ME",   date:"2022-09-12", gpa:3.3, status:"Active" },
+  { id:"S022", name:"Kartik Joshi",      dept:"BBA",  date:"2021-07-05", gpa:3.7, status:"Active" },
+  { id:"S023", name:"Nisha Thomas",      dept:"BIO",  date:"2023-08-15", gpa:2.7, status:"Probation" },
+  { id:"S024", name:"Vivek Iyer",        dept:"MATH", date:"2020-01-20", gpa:3.5, status:"Graduated" },
+  { id:"S025", name:"Ramya Balaji",      dept:"CS",   date:"2022-06-10", gpa:3.2, status:"Active" },
+  { id:"S026", name:"Harish Kumar",      dept:"EE",   date:"2021-09-08", gpa:3.8, status:"Active" },
+  { id:"S027", name:"Shruthi Narayanan", dept:"ME",   date:"2023-07-18", gpa:3.0, status:"Active" },
+  { id:"S028", name:"Gopal Menon",       dept:"BBA",  date:"2020-08-28", gpa:3.4, status:"Active" },
+  { id:"S029", name:"Revathi Suresh",    dept:"BIO",  date:"2022-01-25", gpa:3.6, status:"Active" },
+  { id:"S030", name:"Prasad Sharma",     dept:"MATH", date:"2021-06-14", gpa:3.1, status:"Active" },
+];
+
+const DEPTS = ["CS","EE","ME","BBA","BIO","MATH"];
+const DEPT_LABELS = { CS:"Computer Science", EE:"Electrical Eng.", ME:"Mechanical Eng.", BBA:"Business Admin.", BIO:"Biology", MATH:"Mathematics" };
+
+let sortKey = 'name', filterDept = '', searchTerm = '';
+let sortAsc = { name:true, date:true, gpa:false };
+
+function buildDeptCards() {
+  const counts = {};
+  STUDENTS.forEach(s => counts[s.dept] = (counts[s.dept]||0)+1);
+  document.getElementById('deptRow').innerHTML = DEPTS.map(d => `
+    <div class="dept-card ${filterDept===d?'active':''}" onclick="clickDept('${d}')">
+      <div class="d-name">${DEPT_LABELS[d]}</div>
+      <div class="d-count">${counts[d]||0}</div>
+    </div>
+  `).join('');
+}
+
+function clickDept(d) {
+  filterDept = filterDept === d ? '' : d;
+  document.getElementById('deptFilter').value = filterDept;
+  buildDeptCards();
+  render();
+}
+
+function setSort(key) {
+  if (sortKey === key) sortAsc[key] = !sortAsc[key];
+  sortKey = key;
+  ['Name','Date','Gpa'].forEach(k => document.getElementById('btn'+k).classList.remove('active'));
+  document.getElementById('btn'+key.charAt(0).toUpperCase()+key.slice(1)).classList.add('active');
+  render();
+}
+
+function initials(n) { return n.split(' ').map(w=>w[0]).slice(0,2).join(''); }
+function fmtDate(d) { return new Date(d).toLocaleDateString('en-IN',{day:'2-digit',month:'short',year:'numeric'}); }
+function gpaClass(g) { return g>=3.7?'gpa-hi':g>=3.0?'gpa-md':'gpa-lo'; }
+function statusColor(s) { return s==='Active'?'#2db891':s==='Graduated'?'#7c6af7':'#e05555'; }
+
+function render() {
+  const data = STUDENTS
+    .filter(s => (!filterDept || s.dept===filterDept) &&
+                 (!searchTerm || s.name.toLowerCase().includes(searchTerm) || s.id.toLowerCase().includes(searchTerm)))
+    .sort((a,b) => {
+      const va = sortKey==='gpa'?a.gpa:sortKey==='date'?a.date:a.name;
+      const vb = sortKey==='gpa'?b.gpa:sortKey==='date'?b.date:b.name;
+      return va<vb?(sortAsc[sortKey]?-1:1):va>vb?(sortAsc[sortKey]?1:-1):0;
+    });
+
+  document.getElementById('countInfo').textContent = `Showing ${data.length} of ${STUDENTS.length} students`;
+
+  const body = document.getElementById('tableBody');
+  const none = document.getElementById('noResults');
+
+  if (!data.length) { body.innerHTML=''; none.style.display='block'; return; }
+  none.style.display = 'none';
+
+  body.innerHTML = data.map(s => `
+    <tr>
+      <td>
+        <div class="name-cell">
+          <div class="avatar">${initials(s.name)}</div>
+          <div>
+            <div class="name-txt">${s.name}</div>
+            <div class="id-txt">${s.id}</div>
+          </div>
+        </div>
+      </td>
+      <td><span class="badge">${s.dept}</span></td>
+      <td style="color:#555;font-size:12px">${fmtDate(s.date)}</td>
+      <td class="${gpaClass(s.gpa)}">${s.gpa.toFixed(1)}</td>
+      <td>
+        <div class="status">
+          <div class="dot" style="background:${statusColor(s.status)}"></div>
+          <span style="color:${statusColor(s.status)}">${s.status}</span>
+        </div>
+      </td>
+    </tr>
+  `).join('');
+}
+
+document.getElementById('searchInput').addEventListener('input', e => {
+  searchTerm = e.target.value.trim().toLowerCase();
+  render();
+});
+
+document.getElementById('deptFilter').addEventListener('change', e => {
+  filterDept = e.target.value;
+  buildDeptCards();
+  render();
+});
+
+buildDeptCards();
+render();
+</script>
+</body>
+</html>
