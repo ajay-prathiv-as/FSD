@@ -1,0 +1,532 @@
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Login System</title>
+<link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  /* =========================================
+     RESET & BASE
+  ========================================= */
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Nunito', sans-serif;
+    background: #111111;
+    color: #f0f0f0;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+  }
+
+  /* =========================================
+     HEADER
+  ========================================= */
+  header {
+    background: #cc2200;
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  header .logo { font-size: 20px; }
+  header h1   { font-size: 16px; font-weight: 800; color: white; }
+  header p    { font-size: 11px; color: rgba(255,255,255,0.7); margin-top: 1px; }
+
+  /* =========================================
+     MAIN LAYOUT — two columns
+  ========================================= */
+  main {
+    flex: 1;
+    display: flex;
+    align-items: stretch;
+  }
+
+  /* Validation rules list */
+  .rules-box { display: flex; flex-direction: column; gap: 6px; }
+
+  .rule {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12px;
+    color: #888;
+    transition: color 0.3s;
+  }
+
+  .rule.pass { color: #44cc88; }
+  .rule.fail { color: #cc2200; }
+
+  .rule-dot {
+    width: 8px; height: 8px;
+    border-radius: 50%;
+    background: #333;
+    flex-shrink: 0;
+    transition: background 0.3s;
+  }
+
+  .rule.pass .rule-dot { background: #44cc88; }
+  .rule.fail .rule-dot { background: #cc2200; }
+
+  /* RIGHT — login form */
+  .form-panel {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 40px 24px;
+  }
+
+  .login-card {
+    width: 100%;
+    max-width: 380px;
+    background: #1a1a1a;
+    border: 1px solid #2a2a2a;
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  .card-header {
+    background: #cc2200;
+    padding: 20px 24px;
+    text-align: center;
+  }
+
+  .card-header .icon { font-size: 30px; }
+  .card-header h2   { font-size: 18px; font-weight: 800; color: white; margin-top: 6px; }
+  .card-header p    { font-size: 12px; color: rgba(255,255,255,0.75); margin-top: 3px; }
+
+  .card-body { padding: 28px 24px; display: flex; flex-direction: column; gap: 18px; }
+
+  /* Field group */
+  .field { display: flex; flex-direction: column; gap: 6px; }
+
+  label {
+    font-size: 12px;
+    font-weight: 700;
+    color: #aaa;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+  }
+
+  .input-wrap {
+    position: relative;
+    display: flex;
+    align-items: center;
+  }
+
+  .input-icon {
+    position: absolute;
+    left: 12px;
+    font-size: 15px;
+    pointer-events: none;
+  }
+
+  input[type="text"],
+  input[type="password"] {
+    width: 100%;
+    background: #111;
+    border: 1.5px solid #2a2a2a;
+    border-radius: 8px;
+    color: #f0f0f0;
+    font-family: 'Nunito', sans-serif;
+    font-size: 14px;
+    padding: 10px 40px;
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  input:focus { border-color: #cc2200; }
+
+  input.valid   { border-color: #44cc88; }
+  input.invalid { border-color: #cc2200; }
+
+  .eye-btn {
+    position: absolute;
+    right: 12px;
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 15px;
+    color: #666;
+    padding: 0;
+  }
+
+  /* Error / success message under field */
+  .field-msg {
+    font-size: 11px;
+    font-weight: 600;
+    min-height: 16px;
+    transition: all 0.2s;
+  }
+
+  .field-msg.error   { color: #ff5533; }
+  .field-msg.success { color: #44cc88; }
+
+  /* Login button */
+  .login-btn {
+    width: 100%;
+    background: #cc2200;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 12px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 15px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: background 0.2s, transform 0.1s;
+    letter-spacing: 0.03em;
+    margin-top: 4px;
+  }
+
+  .login-btn:hover   { background: #e02800; }
+  .login-btn:active  { transform: scale(0.98); }
+  .login-btn:disabled { background: #444; cursor: not-allowed; }
+
+  /* Alert box (top-level error / success) */
+  .alert {
+    border-radius: 8px;
+    padding: 10px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    display: none;
+    align-items: center;
+    gap: 8px;
+  }
+
+  .alert.show { display: flex; }
+
+  .alert.error {
+    background: rgba(204,34,0,0.15);
+    border: 1px solid rgba(204,34,0,0.4);
+    color: #ff6644;
+  }
+
+  .alert.success {
+    background: rgba(68,204,136,0.12);
+    border: 1px solid rgba(68,204,136,0.4);
+    color: #44cc88;
+  }
+
+  /* Spinner inside button */
+  .spinner {
+    display: inline-block;
+    width: 14px; height: 14px;
+    border: 2px solid rgba(255,255,255,0.3);
+    border-top-color: white;
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    vertical-align: middle;
+    margin-right: 6px;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  /* Success screen */
+  .success-screen {
+    display: none;
+    flex-direction: column;
+    align-items: center;
+    gap: 12px;
+    padding: 32px 24px;
+    text-align: center;
+  }
+
+  .success-screen .big-icon { font-size: 48px; }
+  .success-screen h3 { font-size: 18px; font-weight: 800; color: #44cc88; }
+  .success-screen p  { font-size: 13px; color: #888; }
+
+  .user-badge {
+    background: #111;
+    border: 1px solid #2a2a2a;
+    border-radius: 8px;
+    padding: 12px 20px;
+    width: 100%;
+    margin-top: 4px;
+  }
+
+  .user-badge .ub-name { font-size: 15px; font-weight: 700; color: #f0f0f0; }
+  .user-badge .ub-role { font-size: 12px; color: #888; margin-top: 3px; }
+  .user-badge .ub-time { font-size: 11px; color: #555; margin-top: 6px; font-family: monospace; }
+
+  .logout-btn {
+    background: #1a1a1a;
+    border: 1.5px solid #cc2200;
+    color: #cc2200;
+    border-radius: 8px;
+    padding: 9px 20px;
+    font-family: 'Nunito', sans-serif;
+    font-size: 13px;
+    font-weight: 700;
+    cursor: pointer;
+    transition: all 0.2s;
+    margin-top: 4px;
+  }
+
+  .logout-btn:hover { background: #cc2200; color: white; }
+
+  /* Footer */
+  footer {
+    background: #1a1a1a;
+    border-top: 1px solid #2a2a2a;
+    padding: 10px 24px;
+    font-size: 11px;
+    color: #444;
+    text-align: center;
+  }
+
+  footer span { color: #cc2200; }
+
+  /* Responsive */
+  @media (max-width: 700px) {
+    main { flex-direction: column; }
+    .info-panel { width: 100%; border-right: none; border-bottom: 1px solid #2a2a2a; }
+  }
+</style>
+</head>
+<body>
+<main>
+  <!-- RIGHT PANEL — login form -->
+  <div class="form-panel">
+    <div class="login-card">
+
+      <div class="card-header">
+        <div class="icon">🔑</div>
+        <h2>Sign In</h2>
+        <p>Enter your credentials to continue</p>
+      </div>
+
+      <!-- LOGIN FORM -->
+      <div class="card-body" id="loginForm">
+
+        <!-- Alert box -->
+        <div class="alert" id="alertBox"></div>
+
+        <!-- Email field -->
+        <div class="field">
+          <label for="emailInput">Email Address</label>
+          <div class="input-wrap">
+            <span class="input-icon">📧</span>
+            <input type="text" id="emailInput" placeholder="you@example.com" autocomplete="off">
+          </div>
+          <div class="field-msg" id="emailMsg"></div>
+        </div>
+
+        <!-- Password field -->
+        <div class="field">
+          <label for="passInput">Password</label>
+          <div class="input-wrap">
+            <span class="input-icon">🔒</span>
+            <input type="password" id="passInput" placeholder="Enter password">
+            <button class="eye-btn" onclick="togglePass()" id="eyeBtn" type="button">👁️</button>
+          </div>
+          <div class="field-msg" id="passMsg"></div>
+        </div>
+
+        <!-- Submit -->
+        <button class="login-btn" id="loginBtn" onclick="handleLogin()">Login →</button>
+
+      </div><!-- /card-body -->
+
+      <!-- SUCCESS SCREEN (hidden until login) -->
+      <div class="success-screen" id="successScreen">
+        <div class="big-icon">✅</div>
+        <h3>Login Successful!</h3>
+        <p>Welcome back. You are now authenticated.</p>
+        <div class="user-badge">
+          <div class="ub-name" id="sbName"></div>
+          <div class="ub-role" id="sbRole"></div>
+          <div class="ub-time" id="sbTime"></div>
+        </div>
+        <button class="logout-btn" onclick="handleLogout()">← Logout</button>
+      </div>
+
+    </div><!-- /login-card -->
+  </div><!-- /form-panel -->
+
+</main>
+
+<footer>
+  Task 3 — Login System &nbsp;|&nbsp; Concepts: <span>JS Validation · Mock DB · Dynamic DOM Updates</span>
+</footer>
+
+<script>
+  // ==============================
+  // GET INPUT ELEMENTS
+  // ==============================
+  const emailInput = document.getElementById('emailInput');
+  const passInput  = document.getElementById('passInput');
+
+  // ==============================
+  // FIELD HELPERS
+  // ==============================
+  function setField(inputId, msgId, state, msg) {
+    const input = document.getElementById(inputId);
+    const msgEl = document.getElementById(msgId);
+
+    input.classList.remove('valid', 'invalid');
+    msgEl.className = 'field-msg';
+
+    if (state === 'error') {
+      input.classList.add('invalid');
+      msgEl.classList.add('error');
+    }
+
+    if (state === 'success') {
+      input.classList.add('valid');
+      msgEl.classList.add('success');
+    }
+
+    msgEl.textContent = msg;
+  }
+
+  function clearField(inputId, msgId) {
+    document.getElementById(inputId).classList.remove('valid','invalid');
+    document.getElementById(msgId).textContent = '';
+    document.getElementById(msgId).className = 'field-msg';
+  }
+
+  // ==============================
+  // LIVE VALIDATION
+  // ==============================
+  emailInput.addEventListener('input', () => {
+    const val = emailInput.value.trim();
+
+    if (!val) {
+      clearField('emailInput','emailMsg');
+      return;
+    }
+
+    const ok = /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(val);
+
+    if (ok)
+      setField('emailInput','emailMsg','success','✔ Valid email');
+    else
+      setField('emailInput','emailMsg','error','✘ Invalid email');
+
+    clearAlert();
+  });
+
+  passInput.addEventListener('input', () => {
+    const val = passInput.value;
+
+    if (!val) {
+      clearField('passInput','passMsg');
+      return;
+    }
+
+    if (val.length < 6)
+      setField('passInput','passMsg','error','✘ Min 6 characters');
+    else
+      setField('passInput','passMsg','success','✔ Looks good');
+
+    clearAlert();
+  });
+
+  // ==============================
+  // ALERT BOX
+  // ==============================
+  function showAlert(type, icon, msg) {
+    const box = document.getElementById('alertBox');
+    box.className = `alert show ${type}`;
+    box.innerHTML = `<span>${icon}</span><span>${msg}</span>`;
+  }
+
+  function clearAlert() {
+    const box = document.getElementById('alertBox');
+    box.className = 'alert';
+    box.innerHTML = '';
+  }
+
+  // ==============================
+  // TOGGLE PASSWORD
+  // ==============================
+  function togglePass() {
+    const inp = document.getElementById('passInput');
+    const btn = document.getElementById('eyeBtn');
+
+    if (inp.type === 'password') {
+      inp.type = 'text';
+      btn.textContent = '🙈';
+    } else {
+      inp.type = 'password';
+      btn.textContent = '👁️';
+    }
+  }
+
+  // ==============================
+  // HANDLE LOGIN
+  // ==============================
+  function handleLogin() {
+    const email    = emailInput.value.trim();
+    const password = passInput.value;
+
+    if (!email || !password) {
+      showAlert('error','⚠️','Please fill all fields');
+      return;
+    }
+
+    const btn = document.getElementById('loginBtn');
+    btn.disabled = true;
+    btn.innerHTML = '<span class="spinner"></span>Checking...';
+
+    const formData = new FormData();
+    formData.append('email', email);
+    formData.append('password', password);
+
+    fetch('login.php', {
+      method: 'POST',
+      body: formData
+    })
+    .then(res => res.json())
+    .then(data => {
+      btn.disabled = false;
+      btn.innerHTML = 'Login →';
+
+      if (data.status === 'success') {
+        showSuccessScreen(data);
+      } else {
+        showAlert('error','❌', data.message);
+      }
+    })
+    .catch(err => {
+      btn.disabled = false;
+      btn.innerHTML = 'Login →';
+      showAlert('error','⚠️','Server error. Check PHP.');
+    });
+  }
+
+  // ==============================
+  // SUCCESS SCREEN
+  // ==============================
+  function showSuccessScreen(user) {
+    document.getElementById('loginForm').style.display = 'none';
+    document.getElementById('successScreen').style.display = 'flex';
+
+    document.getElementById('sbName').textContent = '👤 ' + user.name;
+    document.getElementById('sbRole').textContent = 'Role: ' + user.role;
+    document.getElementById('sbTime').textContent =
+      'Logged in at: ' + new Date().toLocaleTimeString();
+  }
+
+  // ==============================
+  // LOGOUT
+  // ==============================
+  function handleLogout() {
+    emailInput.value = '';
+    passInput.value  = '';
+
+    clearField('emailInput','emailMsg');
+    clearField('passInput','passMsg');
+    clearAlert();
+
+    document.getElementById('loginForm').style.display = 'flex';
+    document.getElementById('successScreen').style.display = 'none';
+  }
+</script>
+</body>
+</html>
